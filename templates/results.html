@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ErgoScore — Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <div class="brand">
+        <span class="brand-mark">ErgoScore</span>
+        <span class="brand-tagline">Video-based ergonomic risk assessment</span>
+      </div>
+      <a href="{{ url_for('main.index') }}" class="btn-secondary">Analyze another video</a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    {% if result.is_dummy_data %}
+      <div class="flash flash-notice">
+        Showing placeholder analysis. Pose detection and REBA scoring modules
+        are not yet connected — these values are not from real video analysis.
+      </div>
+    {% endif %}
+
+    <section class="results-grid">
+
+      <div class="card video-card">
+        <h2>Uploaded Video</h2>
+        {% if video_filename %}
+          <video controls class="video-preview">
+            <source src="{{ url_for('main.uploaded_video', filename=video_filename) }}">
+            Your browser does not support embedded video playback.
+          </video>
+          <p class="field-hint">Analyzed with load: {{ load | capitalize }}, coupling: {{ coupling | capitalize }}.</p>
+        {% else %}
+          <div class="video-placeholder">No video available.</div>
+        {% endif %}
+      </div>
+
+      <div class="card overall-risk-card">
+        <h2>Overall Risk</h2>
+        <div class="risk-score risk-{{ result.risk_level | lower }}">
+          <span class="risk-score-number">{{ result.overall_score }}</span>
+          <span class="risk-score-label">REBA Score</span>
+        </div>
+        <span class="risk-badge risk-badge-{{ result.risk_level | lower }}">{{ result.risk_level }} Risk</span>
+      </div>
+
+    </section>
+
+    <section class="card metrics-card">
+      <h2>Key Metrics</h2>
+      <div class="metrics-grid">
+        <div class="metric">
+          <span class="metric-value">{{ result.average_score }}</span>
+          <span class="metric-label">Average Score</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value">{{ result.maximum_score }}</span>
+          <span class="metric-label">Maximum Score</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value">{{ result.duration }}</span>
+          <span class="metric-label">Analyzed Duration</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value">{{ result.risk_distribution.high }}%</span>
+          <span class="metric-label">High-Risk Exposure</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="results-grid">
+      <div class="card">
+        <h2>Risk Distribution</h2>
+        <div class="chart-wrap">
+          <canvas id="risk-distribution-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Score Timeline</h2>
+        <div class="chart-wrap">
+          <canvas id="score-timeline-chart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Worst Posture Frames</h2>
+      <div class="frames-grid">
+        {% for frame in result.worst_frames %}
+          <div class="frame-card">
+            <div class="frame-image-placeholder">
+              {% if frame.image_url %}
+                <img src="{{ frame.image_url }}" alt="Frame {{ frame.frame_number }}">
+              {% else %}
+                <span>No snapshot available</span>
+              {% endif %}
+            </div>
+            <div class="frame-details">
+              <div class="frame-header">
+                <span>Frame {{ frame.frame_number }}</span>
+                <span class="risk-badge risk-badge-{{ result.risk_level | lower }}">Score {{ frame.score }}</span>
+              </div>
+              <p class="frame-timestamp">Timestamp: {{ frame.timestamp }}</p>
+              <ul class="frame-angles">
+                <li>Trunk angle: {{ frame.trunk_angle }}&deg;</li>
+                <li>Neck angle: {{ frame.neck_angle }}&deg;</li>
+                <li>Knee angle: {{ frame.knee_angle }}&deg;</li>
+              </ul>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card summary-card">
+      <h2>Summary</h2>
+      <p>{{ result.summary }}</p>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>ErgoScore — Innovate Without Borders Hackathon</p>
+    </div>
+  </footer>
+
+  <script id="result-data" type="application/json">
+    {
+      "risk_distribution": {{ result.risk_distribution | tojson }},
+      "timeline": {{ result.timeline | tojson }}
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

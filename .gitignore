@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Runtime logs
+*.log
+server.log
+
+# Generated videos
+videos/uploads/*
+videos/processed/*
+
+# Generated data
+data/keypoints/*
+reports/*
+snapshots/*
+
+# Keep directory structure
+!videos/uploads/.gitkeep
+!videos/processed/.gitkeep
+!data/keypoints/.gitkeep
+!reports/.gitkeep
+!snapshots/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

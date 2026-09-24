@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ErgoScore — Ergonomic Risk Assessment</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <div class="brand">
+        <span class="brand-mark">ErgoScore</span>
+        <span class="brand-tagline">Video-based ergonomic risk assessment</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-list">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section class="hero">
+      <h1>Assess posture risk from a single video</h1>
+      <p class="hero-subtext">
+        Upload a short clip of a task being performed. ErgoScore analyzes body
+        posture over the full task and reports a REBA-style risk score, a
+        timeline of exposure, and the highest-risk moments.
+      </p>
+    </section>
+
+    <section class="upload-card">
+      <h2>Upload a video</h2>
+      <form action="{{ url_for('main.analyze') }}" method="post" enctype="multipart/form-data" class="upload-form">
+
+        <div class="field">
+          <label for="video">Video file</label>
+          <input type="file" id="video" name="video" accept=".mp4,.mov,.avi,.webm,.mkv" required>
+          <p class="field-hint">Accepted formats: MP4, MOV, AVI, WEBM, MKV.</p>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="load">Load</label>
+            <select id="load" name="load">
+              {% for option in load_options %}
+                <option value="{{ option }}" {% if option == 'medium' %}selected{% endif %}>
+                  {{ option | capitalize }}
+                </option>
+              {% endfor %}
+            </select>
+            <p class="field-hint">Approximate weight being handled during the task.</p>
+          </div>
+
+          <div class="field">
+            <label for="coupling">Coupling</label>
+            <select id="coupling" name="coupling">
+              {% for option in coupling_options %}
+                <option value="{{ option }}" {% if option == 'fair' %}selected{% endif %}>
+                  {{ option | capitalize }}
+                </option>
+              {% endfor %}
+            </select>
+            <p class="field-hint">Quality of the hand grip on the load or tool.</p>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Analyze Video</button>
+      </form>
+    </section>
+
+    <section class="how-it-works">
+      <h2>How it works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-number">1</span>
+          <h3>Upload</h3>
+          <p>Provide a short video of the task, along with load and coupling context.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-number">2</span>
+          <h3>Analyze</h3>
+          <p>Posture is scored across the full clip using a REBA-style risk model.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-number">3</span>
+          <h3>Review</h3>
+          <p>See overall risk, a score timeline, and the highest-risk moments.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>ErgoScore — Innovate Without Borders Hackathon</p>
+    </div>
+  </footer>
+</body>
+</html>
