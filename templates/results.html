@@ -1,145 +1,1394 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ErgoScore — Results</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ErgoScore | Analysis Results</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 </head>
-<body>
-  <header class="site-header">
-    <div class="container header-row">
-      <div class="brand">
-        <span class="brand-mark">ErgoScore</span>
-        <span class="brand-tagline">Video-based ergonomic risk assessment</span>
-      </div>
-      <a href="{{ url_for('main.index') }}" class="btn-secondary">Analyze another video</a>
+
+<body class="results-page">
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<header class="dashboard-header">
+
+    <div class="dashboard-container dashboard-nav">
+
+        <a
+            href="{{ url_for('main.index') }}"
+            class="dashboard-brand"
+        >
+            <span class="brand-mark">E</span>
+
+            <span>
+                Ergo<span>Score</span>
+            </span>
+        </a>
+
+        <nav class="dashboard-nav-links">
+
+            <a href="#overview">
+                Analysis
+            </a>
+
+            <a href="#risk-timeline">
+                Reports
+            </a>
+
+        </nav>
+
+        <a
+            href="{{ url_for('main.index') }}"
+            class="dashboard-new-analysis"
+        >
+            <span>+</span>
+            New Analysis
+        </a>
+
     </div>
-  </header>
 
-  <main class="container">
+</header>
 
-    {% if result.is_dummy_data %}
-      <div class="flash flash-notice">
-        Showing placeholder analysis. Pose detection and REBA scoring modules
-        are not yet connected — these values are not from real video analysis.
-      </div>
-    {% endif %}
 
-    <section class="results-grid">
+<!-- =========================================================
+     MAIN
+========================================================= -->
 
-      <div class="card video-card">
-        <h2>Uploaded Video</h2>
-        {% if video_filename %}
-          <video controls class="video-preview">
-            <source src="{{ url_for('main.uploaded_video', filename=video_filename) }}">
-            Your browser does not support embedded video playback.
-          </video>
-          <p class="field-hint">Analyzed with load: {{ load | capitalize }}, coupling: {{ coupling | capitalize }}.</p>
+<main class="dashboard-main">
+
+<div class="dashboard-container">
+
+
+    <!-- =====================================================
+         ANALYSIS HEADER
+    ====================================================== -->
+
+    <section
+        class="dashboard-title-row"
+        id="overview"
+    >
+
+        <div>
+
+            <div class="dashboard-eyebrow">
+
+                <span class="status-dot"></span>
+
+                ANALYSIS COMPLETE
+
+            </div>
+
+            <h1>
+                Ergonomic Analysis
+            </h1>
+
+            <p class="dashboard-subtitle">
+
+                Results generated from
+
+                <strong>
+                    {{ video_filename }}
+                </strong>
+
+            </p>
+
+        </div>
+
+
+        <div class="analysis-meta">
+
+            <div>
+
+                <span>
+                    Workload
+                </span>
+
+                <strong>
+                    {{ load | capitalize }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Coupling
+                </span>
+
+                <strong>
+                    {{ coupling | capitalize }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RISK HERO
+    ====================================================== -->
+
+    <section class="risk-hero-card">
+
+        <div class="risk-hero-main">
+
+
+            <!-- SCORE -->
+
+            <div>
+
+                <div class="dashboard-eyebrow">
+                    OVERALL RISK
+                </div>
+
+                <h2>
+                    REBA Assessment
+                </h2>
+
+
+                <div
+                    class="
+                        risk-score-display
+                        risk-{{ result.risk_level | lower }}
+                    "
+                >
+
+                    <span>
+                        {{ result.overall_score | round(1) }}
+                    </span>
+
+                    <small>
+                        REBA
+                    </small>
+
+                </div>
+
+
+                <div
+                    class="
+                        risk-status
+                        risk-status-{{ result.risk_level | lower }}
+                    "
+                >
+
+                    {{ result.risk_level }} Risk
+
+                </div>
+
+
+                <p class="risk-description">
+
+                    {% if result.overall_score <= 3 %}
+
+                        The maximum observed score falls
+                        within the low-risk range.
+
+                    {% elif result.overall_score <= 7 %}
+
+                        The maximum observed score falls
+                        within the medium-risk range.
+
+                    {% else %}
+
+                        The maximum observed score falls
+                        within the high-risk range.
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+
+
+            <!-- REBA SCALE -->
+
+            <div class="reba-scale">
+
+                <div class="scale-heading">
+
+                    <span>
+                        REBA SCALE
+                    </span>
+
+                    <strong>
+                        0–15
+                    </strong>
+
+                </div>
+
+
+                <div class="scale-bar">
+
+                    <span class="scale-low"></span>
+
+                    <span class="scale-medium"></span>
+
+                    <span class="scale-high"></span>
+
+                </div>
+
+
+                <div class="scale-labels">
+
+                    <span>
+                        0–3
+                        <small>Low</small>
+                    </span>
+
+                    <span>
+                        4–7
+                        <small>Medium</small>
+                    </span>
+
+                    <span>
+                        8–15
+                        <small>High</small>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- METRICS -->
+
+        <div class="hero-metrics">
+
+            <div class="hero-metric">
+
+                <span>
+                    AVERAGE REBA
+                </span>
+
+                <strong>
+                    {{ "%.2f"|format(result.average_score) }}
+                </strong>
+
+            </div>
+
+
+            <div class="hero-metric">
+
+                <span>
+                    PEAK REBA
+                </span>
+
+                <strong>
+                    {{ "%.1f"|format(result.maximum_score) }}
+                </strong>
+
+            </div>
+
+
+            <div class="hero-metric">
+
+                <span>
+                    FRAMES SCORED
+                </span>
+
+                <strong>
+                    {{ result.frames_scored }}
+                </strong>
+
+            </div>
+
+
+            <div class="hero-metric">
+
+                <span>
+                    DURATION
+                </span>
+
+                <strong>
+                    {{ result.duration }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CHARTS
+    ====================================================== -->
+
+    <section class="dashboard-chart-grid">
+
+
+        <!-- TIMELINE -->
+
+        <div
+            class="dashboard-card chart-panel"
+            id="risk-timeline"
+        >
+
+            <div class="card-topline">
+
+                <div>
+
+                    <span class="dashboard-eyebrow">
+                        TEMPORAL ANALYSIS
+                    </span>
+
+                    <h2>
+                        Posture Risk Over Time
+                    </h2>
+
+                </div>
+
+
+                <span class="chart-badge">
+                    REBA · 0–15
+                </span>
+
+            </div>
+
+
+            <div class="large-chart-wrap">
+
+                <canvas
+                    id="score-timeline-chart"
+                ></canvas>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- DISTRIBUTION -->
+
+        <div class="dashboard-card chart-panel">
+
+            <div class="card-topline">
+
+                <div>
+
+                    <span class="dashboard-eyebrow">
+                        EXPOSURE
+                    </span>
+
+                    <h2>
+                        Risk Distribution
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="distribution-chart-wrap">
+
+                <canvas
+                    id="risk-distribution-chart"
+                ></canvas>
+
+            </div>
+
+
+            <div class="distribution-legend">
+
+
+                <div>
+
+                    <span
+                        class="legend-dot legend-low"
+                    ></span>
+
+                    <span>
+                        Low
+                    </span>
+
+                    <strong>
+                        {{ "%.1f"|format(
+                            result.risk_distribution.low
+                        ) }}%
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="legend-dot legend-medium"
+                    ></span>
+
+                    <span>
+                        Medium
+                    </span>
+
+                    <strong>
+                        {{ "%.1f"|format(
+                            result.risk_distribution.medium
+                        ) }}%
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        class="legend-dot legend-high"
+                    ></span>
+
+                    <span>
+                        High
+                    </span>
+
+                    <strong>
+                        {{ "%.1f"|format(
+                            result.risk_distribution.high
+                        ) }}%
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         HIGH RISK MOMENTS
+    ====================================================== -->
+
+    <section class="dashboard-card high-risk-section">
+
+        <div class="card-topline">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    HIGH-RISK MOMENTS
+                </span>
+
+                <h2>
+                    Worst Posture Frames
+                </h2>
+
+                <p>
+                    Highest observed REBA moments
+                    separated across the video.
+                </p>
+
+            </div>
+
+
+            <span class="count-badge">
+
+                {{ result.worst_frames|length }}
+
+                moments
+
+            </span>
+
+        </div>
+
+
+        {% if result.worst_frames %}
+
+        <div class="high-risk-grid">
+
+            {% for frame in result.worst_frames %}
+
+            <article class="high-risk-card">
+
+
+                <!-- IMAGE -->
+
+                <div class="frame-visual">
+
+                    {% if frame.image_url %}
+
+                    <img
+                        src="{{ frame.image_url }}"
+                        alt="Posture at frame {{ frame.frame_number }}"
+                        loading="lazy"
+                    >
+
+                    {% else %}
+
+                    <div class="frame-image-empty">
+
+                        <span>
+                            Snapshot unavailable
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    <div class="frame-overlay">
+
+                        <span>
+                            FRAME {{ frame.frame_number }}
+                        </span>
+
+                        <strong>
+                            {{ frame.timestamp }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- DETAILS -->
+
+                <div class="high-risk-content">
+
+
+                    <div class="frame-score-row">
+
+                        <div>
+
+                            <span class="frame-label">
+                                REBA SCORE
+                            </span>
+
+                            <strong class="frame-score">
+
+                                {{ "%.1f"|format(frame.score) }}
+
+                            </strong>
+
+                        </div>
+
+
+                        {% if frame.score >= 8 %}
+
+                        <span class="mini-risk risk-high">
+                            High
+                        </span>
+
+                        {% elif frame.score >= 4 %}
+
+                        <span class="mini-risk risk-medium">
+                            Medium
+                        </span>
+
+                        {% else %}
+
+                        <span class="mini-risk risk-low">
+                            Low
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- ANGLES -->
+
+                    <div class="angle-grid">
+
+
+                        <div>
+
+                            <span>
+                                Trunk
+                            </span>
+
+                            <strong>
+
+                                {% if frame.trunk_angle is not none %}
+
+                                    {{ "%.1f"|format(
+                                        frame.trunk_angle
+                                    ) }}°
+
+                                {% else %}
+
+                                    N/A
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+
+                        <div>
+
+                            <span>
+                                Neck
+                            </span>
+
+                            <strong>
+
+                                {% if frame.neck_angle is not none %}
+
+                                    {{ "%.1f"|format(
+                                        frame.neck_angle
+                                    ) }}°
+
+                                {% else %}
+
+                                    N/A
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+
+                        <div>
+
+                            <span>
+                                Knee
+                            </span>
+
+                            <strong>
+
+                                {% if frame.knee_angle is not none %}
+
+                                    {{ "%.1f"|format(
+                                        frame.knee_angle
+                                    ) }}°
+
+                                {% else %}
+
+                                    N/A
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+
         {% else %}
-          <div class="video-placeholder">No video available.</div>
+
+        <div class="dashboard-empty-state">
+
+            No high-risk frames were identified.
+
+        </div>
+
         {% endif %}
-      </div>
-
-      <div class="card overall-risk-card">
-        <h2>Overall Risk</h2>
-        <div class="risk-score risk-{{ result.risk_level | lower }}">
-          <span class="risk-score-number">{{ result.overall_score }}</span>
-          <span class="risk-score-label">REBA Score</span>
-        </div>
-        <span class="risk-badge risk-badge-{{ result.risk_level | lower }}">{{ result.risk_level }} Risk</span>
-      </div>
 
     </section>
 
-    <section class="card metrics-card">
-      <h2>Key Metrics</h2>
-      <div class="metrics-grid">
-        <div class="metric">
-          <span class="metric-value">{{ result.average_score }}</span>
-          <span class="metric-label">Average Score</span>
-        </div>
-        <div class="metric">
-          <span class="metric-value">{{ result.maximum_score }}</span>
-          <span class="metric-label">Maximum Score</span>
-        </div>
-        <div class="metric">
-          <span class="metric-value">{{ result.duration }}</span>
-          <span class="metric-label">Analyzed Duration</span>
-        </div>
-        <div class="metric">
-          <span class="metric-value">{{ result.risk_distribution.high }}%</span>
-          <span class="metric-label">High-Risk Exposure</span>
-        </div>
-      </div>
-    </section>
 
-    <section class="results-grid">
-      <div class="card">
-        <h2>Risk Distribution</h2>
-        <div class="chart-wrap">
-          <canvas id="risk-distribution-chart"></canvas>
-        </div>
-      </div>
 
-      <div class="card">
-        <h2>Score Timeline</h2>
-        <div class="chart-wrap">
-          <canvas id="score-timeline-chart"></canvas>
-        </div>
-      </div>
-    </section>
+    <!-- =====================================================
+         POSTURE INDICATORS
+    ====================================================== -->
 
-    <section class="card">
-      <h2>Worst Posture Frames</h2>
-      <div class="frames-grid">
-        {% for frame in result.worst_frames %}
-          <div class="frame-card">
-            <div class="frame-image-placeholder">
-              {% if frame.image_url %}
-                <img src="{{ frame.image_url }}" alt="Frame {{ frame.frame_number }}">
-              {% else %}
-                <span>No snapshot available</span>
-              {% endif %}
+    <section class="dashboard-card">
+
+        <div class="card-topline">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    POSTURE INDICATORS
+                </span>
+
+                <h2>
+                    Observed Posture Metrics
+                </h2>
+
+                <p>
+                    Values below are taken from the
+                    highest-risk selected moment.
+                </p>
+
             </div>
-            <div class="frame-details">
-              <div class="frame-header">
-                <span>Frame {{ frame.frame_number }}</span>
-                <span class="risk-badge risk-badge-{{ result.risk_level | lower }}">Score {{ frame.score }}</span>
-              </div>
-              <p class="frame-timestamp">Timestamp: {{ frame.timestamp }}</p>
-              <ul class="frame-angles">
-                <li>Trunk angle: {{ frame.trunk_angle }}&deg;</li>
-                <li>Neck angle: {{ frame.neck_angle }}&deg;</li>
-                <li>Knee angle: {{ frame.knee_angle }}&deg;</li>
-              </ul>
+
+        </div>
+
+
+        {% set first_frame =
+            result.worst_frames[0]
+            if result.worst_frames
+            else none
+        %}
+
+
+        <div class="indicator-grid">
+
+
+            <!-- TRUNK -->
+
+            <div class="indicator-card">
+
+                <span class="indicator-number">
+                    01
+                </span>
+
+                <div>
+
+                    <span>
+                        TRUNK
+                    </span>
+
+                    <strong>
+
+                        {% if first_frame
+                            and first_frame.trunk_angle is not none %}
+
+                            {{ "%.1f"|format(
+                                first_frame.trunk_angle
+                            ) }}°
+
+                        {% else %}
+
+                            N/A
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
             </div>
-          </div>
-        {% endfor %}
-      </div>
+
+
+
+            <!-- NECK -->
+
+            <div class="indicator-card">
+
+                <span class="indicator-number">
+                    02
+                </span>
+
+                <div>
+
+                    <span>
+                        NECK
+                    </span>
+
+                    <strong>
+
+                        {% if first_frame
+                            and first_frame.neck_angle is not none %}
+
+                            {{ "%.1f"|format(
+                                first_frame.neck_angle
+                            ) }}°
+
+                        {% else %}
+
+                            N/A
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- KNEE -->
+
+            <div class="indicator-card">
+
+                <span class="indicator-number">
+                    03
+                </span>
+
+                <div>
+
+                    <span>
+                        KNEE
+                    </span>
+
+                    <strong>
+
+                        {% if first_frame
+                            and first_frame.knee_angle is not none %}
+
+                            {{ "%.1f"|format(
+                                first_frame.knee_angle
+                            ) }}°
+
+                        {% else %}
+
+                            N/A
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- POSE -->
+
+            <div class="indicator-card indicator-card-info">
+
+                <span class="indicator-number">
+                    04
+                </span>
+
+                <div>
+
+                    <span>
+                        FRAMES WITH POSE
+                    </span>
+
+                    <strong>
+                        {{ result.frames_with_pose }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </section>
 
-    <section class="card summary-card">
-      <h2>Summary</h2>
-      <p>{{ result.summary }}</p>
+
+
+
+    <!-- =====================================================
+         RECOMMENDATIONS
+    ====================================================== -->
+
+    <section class="dashboard-card">
+
+        <div class="card-topline">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    ACTIONABLE INSIGHTS
+                </span>
+
+                <h2>
+                    Ergonomic Recommendations
+                </h2>
+
+                <p>
+                    Guidance generated from the highest-risk
+                    selected posture components.
+                </p>
+
+            </div>
+
+            <span class="count-badge">
+                {{ result.recommendations|length }}
+                insights
+            </span>
+
+        </div>
+
+
+        {% if result.recommendations %}
+
+        <div class="indicator-grid">
+
+            {% for recommendation in result.recommendations %}
+
+            <article class="indicator-card
+                {% if recommendation.priority == 'High' %}
+                    recommendation-high
+                {% elif recommendation.priority == 'Medium' %}
+                    recommendation-medium
+                {% else %}
+                    indicator-card-info
+                {% endif %}
+            ">
+
+                <span class="indicator-number">
+                    {{ "%02d"|format(loop.index) }}
+                </span>
+
+                <div>
+
+                    <span>
+                        {{ recommendation.priority | upper }} PRIORITY
+                    </span>
+
+                    <strong>
+                        {{ recommendation.title }}
+                    </strong>
+
+                    <p class="recommendation-detail">
+                        {{ recommendation.detail }}
+                    </p>
+
+                    <small class="recommendation-metric">
+                        {{ recommendation.metric }}
+                    </small>
+
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="dashboard-empty-state">
+            No component-level recommendations are available.
+        </div>
+
+        {% endif %}
+
     </section>
 
-  </main>
 
-  <footer class="site-footer">
-    <div class="container">
-      <p>ErgoScore — Innovate Without Borders Hackathon</p>
+    <!-- =====================================================
+         SUMMARY + VIDEO
+    ====================================================== -->
+
+    <section class="summary-grid">
+
+
+        <!-- SUMMARY -->
+
+        <div class="dashboard-card summary-panel">
+
+            <span class="dashboard-eyebrow">
+                ASSESSMENT SUMMARY
+            </span>
+
+            <h2>
+                What the analysis observed
+            </h2>
+
+            <p>
+                {{ result.summary }}
+            </p>
+
+
+            <div class="summary-stats">
+
+
+                <div>
+
+                    <span>
+                        Overall risk
+                    </span>
+
+                    <strong>
+                        {{ result.risk_level }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Average score
+                    </span>
+
+                    <strong>
+                        {{ "%.2f"|format(
+                            result.average_score
+                        ) }}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Peak score
+                    </span>
+
+                    <strong>
+                        {{ "%.1f"|format(
+                            result.maximum_score
+                        ) }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- VIDEO -->
+
+        <div class="dashboard-card source-panel">
+
+            <span class="dashboard-eyebrow">
+                SOURCE VIDEO
+            </span>
+
+            <h2>
+                Recorded Task
+            </h2>
+
+
+            {% if video_filename %}
+
+            <video
+                controls
+                class="dashboard-video"
+            >
+
+                <source
+                    src="{{ url_for(
+                        'main.uploaded_video',
+                        filename=video_filename
+                    ) }}"
+                >
+
+                Your browser does not support
+                video playback.
+
+            </video>
+
+
+            {% else %}
+
+            <div class="dashboard-empty-state">
+
+                No video available.
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         METHODOLOGY
+    ====================================================== -->
+
+    <section class="methodology-dashboard">
+
+        <div class="methodology-heading">
+
+            <div>
+
+                <span class="dashboard-eyebrow">
+                    METHODOLOGY
+                </span>
+
+                <h2>
+                    From video to ergonomic insight
+                </h2>
+
+            </div>
+
+
+            <p>
+
+                ErgoScore combines computer vision,
+                posture geometry, REBA scoring and
+                temporal analysis.
+
+            </p>
+
+        </div>
+
+
+
+        <div class="methodology-flow">
+
+
+            <div class="methodology-step">
+
+                <span>01</span>
+
+                <strong>
+                    Video
+                </strong>
+
+                <small>
+                    Task recording
+                </small>
+
+            </div>
+
+
+            <div class="method-arrow">
+                →
+            </div>
+
+
+            <div class="methodology-step">
+
+                <span>02</span>
+
+                <strong>
+                    Pose Detection
+                </strong>
+
+                <small>
+                    Body landmarks
+                </small>
+
+            </div>
+
+
+            <div class="method-arrow">
+                →
+            </div>
+
+
+            <div class="methodology-step">
+
+                <span>03</span>
+
+                <strong>
+                    Joint Angles
+                </strong>
+
+                <small>
+                    Posture geometry
+                </small>
+
+            </div>
+
+
+            <div class="method-arrow">
+                →
+            </div>
+
+
+            <div class="methodology-step">
+
+                <span>04</span>
+
+                <strong>
+                    REBA
+                </strong>
+
+                <small>
+                    Risk scoring
+                </small>
+
+            </div>
+
+
+            <div class="method-arrow">
+                →
+            </div>
+
+
+            <div class="methodology-step">
+
+                <span>05</span>
+
+                <strong>
+                    Temporal Analysis
+                </strong>
+
+                <small>
+                    Risk over time
+                </small>
+
+            </div>
+
+
+            <div class="method-arrow">
+                →
+            </div>
+
+
+            <div class="methodology-step">
+
+                <span>06</span>
+
+                <strong>
+                    Report
+                </strong>
+
+                <small>
+                    Assessment output
+                </small>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         INTERPRETATION NOTE
+    ====================================================== -->
+
+    <section class="dashboard-note">
+
+        <strong>
+            Interpretation note
+        </strong>
+
+        <span>
+
+            ErgoScore uses 2D pose estimation from
+            a single camera view. When lower-body
+            landmarks are not sufficiently visible,
+            the leg base score is used without a knee_flexion adjustment.
+
+        </span>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FINAL CTA
+    ====================================================== -->
+
+    <section class="dashboard-final-cta">
+
+        <div>
+
+            <span class="dashboard-eyebrow">
+                NEXT ASSESSMENT
+            </span>
+
+            <h2>
+                Analyze another workplace video.
+            </h2>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('main.index') }}"
+            class="dashboard-primary-button"
+        >
+
+            Start New Analysis
+
+            <span>
+                →
+            </span>
+
+        </a>
+
+    </section>
+
+
+</div>
+</main>
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<footer class="dashboard-footer">
+
+    <div class="dashboard-container">
+
+        <div>
+
+            <strong>
+                ErgoScore
+            </strong>
+
+            <span>
+                Video-based ergonomic risk assessment
+            </span>
+
+        </div>
+
+
+        <span>
+            Innovate Without Borders Hackathon
+        </span>
+
     </div>
-  </footer>
 
-  <script id="result-data" type="application/json">
-    {
-      "risk_distribution": {{ result.risk_distribution | tojson }},
-      "timeline": {{ result.timeline | tojson }}
-    }
-  </script>
+</footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+
+<!-- =========================================================
+     DATA FOR JAVASCRIPT
+========================================================= -->
+
+<script
+    id="result-data"
+    type="application/json"
+>
+{
+    "risk_distribution":
+        {{ result.risk_distribution | tojson }},
+
+    "timeline":
+        {{ result.timeline | tojson }},
+
+    "recommendations":
+        {{ result.recommendations | tojson }}
+}
+</script>
+
+
+
+<!-- =========================================================
+     CHART.JS
+========================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+></script>
+
+
+<script
+    src="{{ url_for('static', filename='js/app.js') }}"
+></script>
+
+
 </body>
 </html>

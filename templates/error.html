@@ -3,31 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ErgoScore — Error</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <title>ErgoScore — Analysis Error</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
 </head>
-<body>
-  <header class="site-header">
-    <div class="container header-row">
-      <div class="brand">
-        <span class="brand-mark">ErgoScore</span>
-        <span class="brand-tagline">Video-based ergonomic risk assessment</span>
-      </div>
+
+<body class="results-page">
+
+  <header class="dashboard-header">
+    <div class="dashboard-container dashboard-nav">
+
+      <a
+        href="{{ url_for('main.index') }}"
+        class="dashboard-brand"
+      >
+        <span class="brand-mark">E</span>
+
+        <span>
+          Ergo<span>Score</span>
+        </span>
+      </a>
+
+      <a
+        href="{{ url_for('main.index') }}"
+        class="dashboard-new-analysis"
+      >
+        <span>+</span>
+        New Analysis
+      </a>
+
     </div>
   </header>
 
-  <main class="container">
-    <section class="card error-card">
-      <h2>Something went wrong</h2>
-      <p>{{ message }}</p>
-      <a href="{{ url_for('main.index') }}" class="btn-primary">Return to upload page</a>
-    </section>
+
+  <main class="dashboard-main">
+
+    <div class="dashboard-container">
+
+      <section class="dashboard-card error-card">
+
+        <div class="dashboard-eyebrow">
+          <span class="status-dot"></span>
+          ANALYSIS COULD NOT BE COMPLETED
+        </div>
+
+        <h1>
+          We couldn't analyze this video
+        </h1>
+
+        <p>
+          {{ message }}
+        </p>
+
+        <div class="error-guidance">
+
+          <strong>For the best results:</strong>
+
+          <ul>
+            <li>Use a clear video with one person visible.</li>
+            <li>Keep the person's upper body clearly visible.</li>
+            <li>Avoid heavy occlusion or extreme camera angles.</li>
+            <li>Use a supported video format such as MP4.</li>
+          </ul>
+
+        </div>
+
+        <a
+          href="{{ url_for('main.index') }}"
+          class="dashboard-primary-button"
+        >
+          Try Another Video
+          <span>→</span>
+        </a>
+
+      </section>
+
+    </div>
+
   </main>
 
-  <footer class="site-footer">
-    <div class="container">
-      <p>ErgoScore — Innovate Without Borders Hackathon</p>
+
+  <footer class="dashboard-footer">
+
+    <div class="dashboard-container">
+
+      <div>
+        <strong>ErgoScore</strong>
+
+        <span>
+          Video-based ergonomic risk assessment
+        </span>
+      </div>
+
+      <span>
+        Innovate Without Borders Hackathon
+      </span>
+
     </div>
+
   </footer>
+
 </body>
 </html>

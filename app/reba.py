@@ -32,21 +32,25 @@ TABLE_A = {
         1, 2, 3, 4,
         3, 3, 5, 6
     ],
+
     2: [
         2, 3, 4, 5,
         3, 4, 5, 6,
         4, 5, 6, 7
     ],
+
     3: [
         2, 4, 5, 6,
         4, 5, 6, 7,
         5, 6, 7, 8
     ],
+
     4: [
         3, 5, 6, 7,
         5, 6, 7, 8,
         6, 7, 8, 9
     ],
+
     5: [
         4, 6, 7, 8,
         6, 7, 8, 9,
@@ -72,22 +76,27 @@ TABLE_B = {
         1: {1: 1, 2: 2, 3: 3},
         2: {1: 1, 2: 2, 3: 3},
     },
+
     2: {
         1: {1: 1, 2: 2, 3: 3},
         2: {1: 2, 2: 3, 3: 4},
     },
+
     3: {
         1: {1: 3, 2: 4, 3: 5},
         2: {1: 4, 2: 5, 3: 5},
     },
+
     4: {
         1: {1: 4, 2: 5, 3: 5},
         2: {1: 5, 2: 6, 3: 7},
     },
+
     5: {
         1: {1: 6, 2: 7, 3: 8},
         2: {1: 7, 2: 8, 3: 8},
     },
+
     6: {
         1: {1: 7, 2: 8, 3: 8},
         2: {1: 8, 2: 9, 3: 9},
@@ -101,8 +110,6 @@ TABLE_B = {
 
 # Rows = Score A
 # Columns = Score B
-#
-# Both Score A and Score B range from 1 to 12.
 
 TABLE_C = [
     [1, 1, 1, 2, 3, 3, 4, 5, 6, 7, 7, 7],
@@ -133,11 +140,14 @@ def _validate_score(
     """Validate an integer REBA score."""
 
     if not isinstance(score, int):
-        raise TypeError(f"{name} must be an integer.")
+        raise TypeError(
+            f"{name} must be an integer."
+        )
 
     if not minimum <= score <= maximum:
         raise ValueError(
-            f"{name} must be between {minimum} and {maximum}."
+            f"{name} must be between "
+            f"{minimum} and {maximum}."
         )
 
 
@@ -169,17 +179,24 @@ def score_trunk(
     """
 
     if trunk_angle is None:
-        raise ValueError("trunk_angle is required.")
+        raise ValueError(
+            "trunk_angle is required."
+        )
 
     if trunk_angle < 0:
-        raise ValueError("trunk_angle cannot be negative.")
+        raise ValueError(
+            "trunk_angle cannot be negative."
+        )
 
     if trunk_angle == 0:
         score = 1
+
     elif trunk_angle <= 20:
         score = 2
+
     elif trunk_angle <= 60:
         score = 3
+
     else:
         score = 4
 
@@ -213,13 +230,18 @@ def score_neck(
     """
 
     if neck_angle is None:
-        raise ValueError("neck_angle is required.")
+        raise ValueError(
+            "neck_angle is required."
+        )
 
     if neck_angle < 0:
-        raise ValueError("neck_angle cannot be negative.")
+        raise ValueError(
+            "neck_angle cannot be negative."
+        )
 
     if neck_angle <= 20:
         score = 1
+
     else:
         score = 2
 
@@ -242,43 +264,78 @@ def score_legs(
     Calculate REBA leg score.
 
     Base:
-        1 = sitting, walking, or symmetrical bilateral support
-        2 = unilateral support, light support, or unstable posture
+        1 = bilateral weight bearing, walking,
+            or symmetrical support
+        2 = unilateral support, light support,
+            or unstable posture
 
     Knee adjustment:
         30-60 degrees flexion -> +1
         >60 degrees flexion   -> +2
 
-    Important:
-        For a seated worker, missing knee/ankle data is allowed.
-        This is useful when the lower legs are outside the camera view.
+    If knee_angle is None:
+        No measured knee flexion is available.
+        Only the base leg score is used.
+
+    This prevents the system from pretending that a
+    180-degree knee angle was actually observed.
     """
 
-    # For our seated-worker case, we can score the base leg posture
-    # even if the knee is not visible.
-    if sitting and knee_angle is None:
+    # ---------------------------------------------------------
+    # Sitting posture
+    # ---------------------------------------------------------
+
+    if sitting:
         return 1
 
+    # ---------------------------------------------------------
+    # Base leg score
+    # ---------------------------------------------------------
+
+    if bilateral_weight_bearing:
+        score = 1
+    else:
+        score = 2
+
+    # ---------------------------------------------------------
+    # Knee not detected
+    #
+    # We cannot calculate a knee-flexion adjustment.
+    # Keep the base leg score only.
+    # ---------------------------------------------------------
+
     if knee_angle is None:
-        raise ValueError("knee_angle is required unless sitting=True.")
+        return min(score, 4)
+
+    # ---------------------------------------------------------
+    # Validate measured knee angle
+    # ---------------------------------------------------------
 
     if knee_angle < 0 or knee_angle > 180:
         raise ValueError(
             "knee_angle must be between 0 and 180."
         )
 
-    if sitting:
-        score = 1
-    else:
-        score = 1 if bilateral_weight_bearing else 2
+    # ---------------------------------------------------------
+    # Convert joint angle to flexion.
+    #
+    # 180 degrees = 0 degrees flexion
+    # 150 degrees = 30 degrees flexion
+    # 120 degrees = 60 degrees flexion
+    # 90 degrees  = 90 degrees flexion
+    # ---------------------------------------------------------
 
-        # Convert internal knee angle to flexion.
-        knee_flexion = 180 - knee_angle
+    knee_flexion = 180 - knee_angle
 
-        if knee_flexion > 60:
-            score += 2
-        elif knee_flexion >= 30:
-            score += 1
+    # ---------------------------------------------------------
+    # Knee-flexion adjustment
+    # ---------------------------------------------------------
+
+    if knee_flexion > 60:
+        score += 2
+
+    elif knee_flexion >= 30:
+        score += 1
 
     return min(score, 4)
 
@@ -311,7 +368,9 @@ def score_upper_arm(
     """
 
     if upper_arm_angle is None:
-        raise ValueError("upper_arm_angle is required.")
+        raise ValueError(
+            "upper_arm_angle is required."
+        )
 
     if upper_arm_angle < 0:
         raise ValueError(
@@ -320,10 +379,13 @@ def score_upper_arm(
 
     if upper_arm_angle <= 20:
         score = 1
+
     elif upper_arm_angle <= 45:
         score = 2
+
     elif upper_arm_angle <= 90:
         score = 3
+
     else:
         score = 4
 
@@ -336,14 +398,19 @@ def score_upper_arm(
     if supported:
         score -= 1
 
-    return max(1, min(score, 6))
+    return max(
+        1,
+        min(score, 6)
+    )
 
 
 # ============================================================
 # LOWER ARM / FOREARM
 # ============================================================
 
-def score_lower_arm(elbow_angle: float) -> int:
+def score_lower_arm(
+    elbow_angle: float
+) -> int:
     """
     Calculate REBA forearm/lower-arm score.
 
@@ -352,7 +419,9 @@ def score_lower_arm(elbow_angle: float) -> int:
     """
 
     if elbow_angle is None:
-        raise ValueError("elbow_angle is required.")
+        raise ValueError(
+            "elbow_angle is required."
+        )
 
     if elbow_angle < 0 or elbow_angle > 180:
         raise ValueError(
@@ -387,14 +456,20 @@ def score_wrist(
     """
 
     if wrist_angle is None:
-        raise ValueError("wrist_angle is required.")
+        raise ValueError(
+            "wrist_angle is required."
+        )
 
     if wrist_angle < 0:
         raise ValueError(
             "wrist_angle cannot be negative."
         )
 
-    score = 1 if wrist_angle <= 15 else 2
+    score = (
+        1
+        if wrist_angle <= 15
+        else 2
+    )
 
     if deviated_or_twisted:
         score += 1
@@ -423,12 +498,16 @@ def score_load(
         load_kg = 0.0
 
     if load_kg < 0:
-        raise ValueError("load_kg cannot be negative.")
+        raise ValueError(
+            "load_kg cannot be negative."
+        )
 
     if load_kg < 5:
         score = 0
+
     elif load_kg <= 10:
         score = 1
+
     else:
         score = 2
 
@@ -442,7 +521,9 @@ def score_load(
 # COUPLING
 # ============================================================
 
-def score_coupling(coupling: int = 0) -> int:
+def score_coupling(
+    coupling: int = 0
+) -> int:
     """
     REBA coupling score.
 
@@ -501,7 +582,9 @@ def calculate_table_a(
         + (leg_score - 1)
     )
 
-    return TABLE_A[trunk_score][index]
+    return TABLE_A[
+        trunk_score
+    ][index]
 
 
 # ============================================================

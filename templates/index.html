@@ -1,107 +1,652 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ErgoScore — Ergonomic Risk Assessment</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ErgoScore | AI-Powered Ergonomic Risk Assessment</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="container header-row">
-      <div class="brand">
-        <span class="brand-mark">ErgoScore</span>
-        <span class="brand-tagline">Video-based ergonomic risk assessment</span>
-      </div>
-    </div>
-  </header>
 
-  <main class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-list">
-          {% for category, message in messages %}
-            <div class="flash flash-{{ category }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-    <section class="hero">
-      <h1>Assess posture risk from a single video</h1>
-      <p class="hero-subtext">
-        Upload a short clip of a task being performed. ErgoScore analyzes body
-        posture over the full task and reports a REBA-style risk score, a
-        timeline of exposure, and the highest-risk moments.
-      </p>
-    </section>
+    <header class="site-header">
 
-    <section class="upload-card">
-      <h2>Upload a video</h2>
-      <form action="{{ url_for('main.analyze') }}" method="post" enctype="multipart/form-data" class="upload-form">
+        <div class="container header-row">
 
-        <div class="field">
-          <label for="video">Video file</label>
-          <input type="file" id="video" name="video" accept=".mp4,.mov,.avi,.webm,.mkv" required>
-          <p class="field-hint">Accepted formats: MP4, MOV, AVI, WEBM, MKV.</p>
+            <a href="{{ url_for('main.index') }}" class="brand">
+                <span class="brand-logo">
+                    Ergo<span>Score</span>
+                </span>
+
+                <span class="brand-tagline">
+                    Intelligent ergonomic risk assessment
+                </span>
+            </a>
+
+            <div class="header-badge">
+                AI + Computer Vision
+            </div>
+
         </div>
 
-        <div class="field-row">
-          <div class="field">
-            <label for="load">Load</label>
-            <select id="load" name="load">
-              {% for option in load_options %}
-                <option value="{{ option }}" {% if option == 'medium' %}selected{% endif %}>
-                  {{ option | capitalize }}
-                </option>
-              {% endfor %}
-            </select>
-            <p class="field-hint">Approximate weight being handled during the task.</p>
-          </div>
+    </header>
 
-          <div class="field">
-            <label for="coupling">Coupling</label>
-            <select id="coupling" name="coupling">
-              {% for option in coupling_options %}
-                <option value="{{ option }}" {% if option == 'fair' %}selected{% endif %}>
-                  {{ option | capitalize }}
-                </option>
-              {% endfor %}
-            </select>
-            <p class="field-hint">Quality of the hand grip on the load or tool.</p>
-          </div>
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main>
+
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
+        <section class="hero-section">
+
+            <div class="container hero-grid">
+
+                <div class="hero-content">
+
+                    <div class="eyebrow">
+                        VIDEO-BASED ERGONOMIC ANALYSIS
+                    </div>
+
+                    <h1>
+                        Understand posture risk
+                        <span>from a single video.</span>
+                    </h1>
+
+                    <p class="hero-description">
+                        ErgoScore uses computer vision and REBA-based
+                        analysis to evaluate posture throughout a task,
+                        identify high-risk moments, and provide
+                        actionable ergonomic insights.
+                    </p>
+
+                    <div class="hero-highlights">
+
+                        <div class="hero-highlight">
+                            <span class="highlight-icon">01</span>
+                            <div>
+                                <strong>Pose Detection</strong>
+                                <small>Body landmarks extracted from video</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-highlight">
+                            <span class="highlight-icon">02</span>
+                            <div>
+                                <strong>REBA Scoring</strong>
+                                <small>Posture risk evaluated frame by frame</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-highlight">
+                            <span class="highlight-icon">03</span>
+                            <div>
+                                <strong>Risk Insights</strong>
+                                <small>Worst moments and exposure timeline</small>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     UPLOAD PANEL
+                ================================================== -->
+
+                <div class="upload-card">
+
+                    <div class="upload-card-header">
+
+                        <div>
+                            <span class="section-label">
+                                START ANALYSIS
+                            </span>
+
+                            <h2>
+                                Analyze your video
+                            </h2>
+                        </div>
+
+                        <div class="upload-status">
+                            READY
+                        </div>
+
+                    </div>
+
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+
+                        {% if messages %}
+
+                            <div class="flash-list">
+
+                                {% for category, message in messages %}
+
+                                    <div class="flash flash-{{ category }}">
+                                        {{ message }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    {% endwith %}
+
+
+                    <form
+                        action="{{ url_for('main.analyze') }}"
+                        method="post"
+                        enctype="multipart/form-data"
+                        class="upload-form"
+                        id="analysis-form"
+                    >
+
+                        <!-- VIDEO -->
+
+                        <div class="field">
+
+                            <label for="video">
+                                Task video
+                            </label>
+
+                            <label
+                                for="video"
+                                class="file-drop-zone"
+                                id="file-drop-zone"
+                            >
+
+                                <div class="upload-icon">
+                                    ↑
+                                </div>
+
+                                <strong id="file-name">
+                                    Choose a video
+                                </strong>
+
+                                <span>
+                                    MP4, MOV, AVI, WEBM or MKV
+                                </span>
+
+                                <small>
+                                    Short videos work best
+                                </small>
+
+                            </label>
+
+                            <input
+                                type="file"
+                                id="video"
+                                name="video"
+                                accept=".mp4,.mov,.avi,.webm,.mkv"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- OPTIONS -->
+
+                        <div class="field-row">
+
+                            <div class="field">
+
+                                <label for="load">
+                                    Load
+                                </label>
+
+                                <select
+                                    id="load"
+                                    name="load"
+                                >
+
+                                    {% for option in load_options %}
+
+                                        <option
+                                            value="{{ option }}"
+                                            {% if option == 'medium' %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ option | capitalize }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <p class="field-hint">
+                                    Approximate load being handled.
+                                </p>
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="coupling">
+                                    Coupling
+                                </label>
+
+                                <select
+                                    id="coupling"
+                                    name="coupling"
+                                >
+
+                                    {% for option in coupling_options %}
+
+                                        <option
+                                            value="{{ option }}"
+                                            {% if option == 'fair' %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ option | capitalize }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                                <p class="field-hint">
+                                    Quality of grip or hand contact.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SUBMIT -->
+
+                        <button
+                            type="submit"
+                            class="btn-primary analyze-button"
+                            id="analyze-button"
+                        >
+
+                            <span id="button-text">
+                                Analyze Posture
+                            </span>
+
+                            <span
+                                class="button-arrow"
+                                id="button-arrow"
+                            >
+                                →
+                            </span>
+
+                        </button>
+
+                    </form>
+
+
+                    <div class="privacy-note">
+                        <span>●</span>
+                        Video is processed locally by the application.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             STATS / VALUE STRIP
+        ================================================== -->
+
+        <section class="value-strip">
+
+            <div class="container value-grid">
+
+                <div class="value-item">
+                    <strong>Pose</strong>
+                    <span>MediaPipe-based detection</span>
+                </div>
+
+                <div class="value-item">
+                    <strong>Angles</strong>
+                    <span>Joint posture estimation</span>
+                </div>
+
+                <div class="value-item">
+                    <strong>REBA</strong>
+                    <span>Frame-level risk scoring</span>
+                </div>
+
+                <div class="value-item">
+                    <strong>Timeline</strong>
+                    <span>Temporal risk analysis</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HOW IT WORKS
+        ================================================== -->
+
+        <section class="how-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        THE PIPELINE
+                    </span>
+
+                    <h2>
+                        From video to ergonomic insight
+                    </h2>
+
+                    <p>
+                        ErgoScore combines computer vision,
+                        posture geometry, and risk scoring into
+                        one analysis pipeline.
+                    </p>
+
+                </div>
+
+
+                <div class="steps-grid">
+
+                    <div class="step-card">
+
+                        <div class="step-top">
+                            <span class="step-number">01</span>
+                            <span class="step-line"></span>
+                        </div>
+
+                        <h3>
+                            Upload
+                        </h3>
+
+                        <p>
+                            Provide a short video showing the
+                            task or activity you want to evaluate.
+                        </p>
+
+                        <div class="step-tech">
+                            VIDEO INPUT
+                        </div>
+
+                    </div>
+
+
+                    <div class="step-card">
+
+                        <div class="step-top">
+                            <span class="step-number">02</span>
+                            <span class="step-line"></span>
+                        </div>
+
+                        <h3>
+                            Detect & Score
+                        </h3>
+
+                        <p>
+                            Body landmarks and joint angles are
+                            extracted and evaluated using REBA.
+                        </p>
+
+                        <div class="step-tech">
+                            COMPUTER VISION
+                        </div>
+
+                    </div>
+
+
+                    <div class="step-card">
+
+                        <div class="step-top">
+                            <span class="step-number">03</span>
+                            <span class="step-line"></span>
+                        </div>
+
+                        <h3>
+                            Understand Risk
+                        </h3>
+
+                        <p>
+                            Temporal analysis reveals overall
+                            exposure and high-risk moments.
+                        </p>
+
+                        <div class="step-tech">
+                            RISK ANALYSIS
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FEATURES
+        ================================================== -->
+
+        <section class="features-section">
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        WHAT YOU GET
+                    </span>
+
+                    <h2>
+                        A complete posture assessment
+                    </h2>
+
+                </div>
+
+
+                <div class="features-grid">
+
+                    <div class="feature-card">
+                        <div class="feature-number">01</div>
+                        <h3>Overall Risk Score</h3>
+                        <p>
+                            A REBA-based score summarizing the
+                            observed posture risk.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-number">02</div>
+                        <h3>Risk Timeline</h3>
+                        <p>
+                            Track how posture risk changes
+                            throughout the recorded task.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-number">03</div>
+                        <h3>Worst Moments</h3>
+                        <p>
+                            Review actual video snapshots of
+                            the highest-risk moments.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-number">04</div>
+                        <h3>Detailed Report</h3>
+                        <p>
+                            Review posture statistics and
+                            generated analysis results.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LIMITATIONS
+        ================================================== -->
+
+        <section class="limitations-section">
+
+            <div class="container">
+
+                <div class="limitation-box">
+
+                    <div>
+                        <span class="section-label">
+                            CURRENT SCOPE
+                        </span>
+
+                        <h3>
+                            Designed for practical video-based screening
+                        </h3>
+                    </div>
+
+                    <p>
+                        ErgoScore uses 2D pose estimation from a single
+                        camera view. Frames with insufficient landmark
+                        visibility may be excluded from scoring. When
+                        lower-body landmarks are unavailable, a neutral
+                        knee-angle assumption is used.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="site-footer">
+
+        <div class="container footer-row">
+
+            <div>
+                <strong>ErgoScore</strong>
+                <span>
+                    Video-based ergonomic risk assessment
+                </span>
+            </div>
+
+            <div>
+                Innovate Without Borders Hackathon
+            </div>
+
         </div>
 
-        <button type="submit" class="btn-primary">Analyze Video</button>
-      </form>
-    </section>
+    </footer>
 
-    <section class="how-it-works">
-      <h2>How it works</h2>
-      <div class="steps-grid">
-        <div class="step-card">
-          <span class="step-number">1</span>
-          <h3>Upload</h3>
-          <p>Provide a short video of the task, along with load and coupling context.</p>
-        </div>
-        <div class="step-card">
-          <span class="step-number">2</span>
-          <h3>Analyze</h3>
-          <p>Posture is scored across the full clip using a REBA-style risk model.</p>
-        </div>
-        <div class="step-card">
-          <span class="step-number">3</span>
-          <h3>Review</h3>
-          <p>See overall risk, a score timeline, and the highest-risk moments.</p>
-        </div>
-      </div>
-    </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="container">
-      <p>ErgoScore — Innovate Without Borders Hackathon</p>
-    </div>
-  </footer>
+    <!-- =====================================================
+         FILE UPLOAD + LOADING SCRIPT
+    ====================================================== -->
+
+    <script>
+
+        const videoInput =
+            document.getElementById("video");
+
+        const fileName =
+            document.getElementById("file-name");
+
+        const dropZone =
+            document.getElementById("file-drop-zone");
+
+        const form =
+            document.getElementById("analysis-form");
+
+        const button =
+            document.getElementById("analyze-button");
+
+        const buttonText =
+            document.getElementById("button-text");
+
+        const buttonArrow =
+            document.getElementById("button-arrow");
+
+
+        videoInput.addEventListener(
+            "change",
+            function () {
+
+                if (this.files && this.files.length > 0) {
+
+                    const file =
+                        this.files[0];
+
+                    fileName.textContent =
+                        file.name;
+
+                    dropZone.classList.add(
+                        "file-selected"
+                    );
+
+                }
+
+            }
+        );
+
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                if (!videoInput.files.length) {
+                    return;
+                }
+
+                button.disabled = true;
+
+                buttonText.textContent =
+                    "Analyzing posture...";
+
+                buttonArrow.textContent =
+                    "•";
+
+                button.classList.add(
+                    "loading"
+                );
+
+            }
+        );
+
+    </script>
+
 </body>
 </html>
